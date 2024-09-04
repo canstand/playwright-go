@@ -33,7 +33,7 @@ func NewTLSServerRequireClientCert(t *testing.T) *httptest.Server {
 		_, err := w.Write(body)
 		require.NoError(t, err)
 	}))
-	// ts.EnableHTTP2 = true	// Wait for https://github.com/microsoft/playwright/pull/32258
+	ts.EnableHTTP2 = true // Wait for https://github.com/microsoft/playwright/pull/32258
 	ts.TLS = &tls.Config{
 		ClientAuth:   tls.RequireAndVerifyClientCert, // Uses the go standard client certificate verification method
 		Certificates: []tls.Certificate{cert},
