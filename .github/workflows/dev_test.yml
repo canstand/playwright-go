@@ -1,0 +1,67 @@
+name: DevTest
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: oldstable
+      id: go
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+        version: latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        browser: [chromium, firefox, webkit]
+        go: ['oldstable', 'stable']
+    runs-on: ${{ matrix.os }}
+    name:  ${{ matrix.browser }} on ${{ matrix.os }}, go v${{ matrix.go }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go }}
+      id: go
+    - name: Cache drivers
+      uses: actions/cache@v4
+      with:
+        # In order:
+        # * Driver for linux
+        # * Driver for macOS
+        # * Driver for windows
+        path: |
+          ~/.cache/ms-playwright-go
+          ~/.cache/ms-playwright
+          ~/Library/Caches/ms-playwright-go
+          ~/Library/Caches/ms-playwright
+          ~\AppData\Local\ms-playwright-go
+          ~\AppData\Local\ms-playwright
+        key: ${{ runner.os }}-go${{ matrix.go }}-${{ matrix.browser }}-${{ hashFiles('**/run.go') }}
+    - run: |
+        go install ./...
+        playwright install --with-deps ${{ matrix.browser }}
+    - name: Test
+      env:
+        BROWSER: ${{ matrix.browser }}
+      if: matrix.os == 'ubuntu-latest'
+      run: xvfb-run go test --timeout 15m -v --race ./...
+    - name: Test
+      env:
+        BROWSER: ${{ matrix.browser }}
+      if: matrix.os != 'ubuntu-latest'
+      run: go test --timeout 15m -v --race ./...
