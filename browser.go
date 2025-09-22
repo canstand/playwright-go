@@ -2,11 +2,12 @@ package playwright
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/go-json-experiment/json"
 )
 
 type browserImpl struct {

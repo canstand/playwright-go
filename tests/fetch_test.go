@@ -2,7 +2,6 @@ package playwright_test
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/go-json-experiment/json"
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/stretchr/testify/require"

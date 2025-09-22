@@ -1,9 +1,10 @@
 package playwright
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+
+	"github.com/go-json-experiment/json"
 )
 
 type jsonPipe struct {

@@ -2,8 +2,9 @@ package playwright
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
+
+	"github.com/go-json-experiment/json"
 )
 
 type localUtilsImpl struct {

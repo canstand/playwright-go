@@ -2,11 +2,13 @@ package playwright
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/go-json-experiment/json"
+	"github.com/go-json-experiment/json/jsontext"
 )
 
 type apiRequestImpl struct {
@@ -140,7 +142,7 @@ func (r *apiRequestContextImpl) innerFetch(url string, request Request, options 
 			case string:
 				headersArray, ok := overrides["headers"].([]map[string]string)
 				if ok && isJsonContentType(headersArray) {
-					if json.Valid([]byte(v)) {
+					if jsontext.Value(v).IsValid() {
 						overrides["jsonData"] = v
 					} else {
 						data, err := json.Marshal(v)
@@ -297,7 +299,7 @@ func (r *apiRequestContextImpl) StorageState(path ...string) (*StorageState, err
 		if err != nil {
 			return nil, err
 		}
-		if err := json.NewEncoder(file).Encode(result); err != nil {
+		if err := json.MarshalWrite(file, result); err != nil {
 			return nil, err
 		}
 		if err := file.Close(); err != nil {

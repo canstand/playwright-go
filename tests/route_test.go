@@ -1,11 +1,12 @@
 package playwright_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/go-json-experiment/json"
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/stretchr/testify/require"
@@ -201,7 +202,7 @@ func TestResponsePostData(t *testing.T) {
 		"kek": true,
 	}
 	server.SetRoute("/foobar", func(w http.ResponseWriter, r *http.Request) {
-		require.NoError(t, json.NewEncoder(w).Encode(requestData))
+		require.NoError(t, json.MarshalWrite(w, requestData))
 	})
 	response, err := page.Goto(server.PREFIX + "/foobar")
 	require.NoError(t, err)
