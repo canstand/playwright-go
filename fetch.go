@@ -289,13 +289,24 @@ func (r *apiRequestContextImpl) Post(url string, options ...APIRequestContextPos
 	return r.Fetch(url, opts)
 }
 
-func (r *apiRequestContextImpl) StorageState(path ...string) (*StorageState, error) {
-	result, err := r.channel.SendReturnAsDict("storageState")
+func (r *apiRequestContextImpl) StorageState(options ...APIRequestContextStorageStateOptions) (*StorageState, error) {
+	var (
+		option APIRequestContextStorageStateOptions
+		saveTo *string
+	)
+	if len(options) == 1 {
+		option = options[0]
+		if option.Path != nil {
+			saveTo = option.Path
+			option.Path = nil
+		}
+	}
+	result, err := r.channel.SendReturnAsDict("storageState", option)
 	if err != nil {
 		return nil, err
 	}
-	if len(path) == 1 {
-		file, err := os.Create(path[0])
+	if saveTo != nil {
+		file, err := os.Create(*saveTo)
 		if err != nil {
 			return nil, err
 		}

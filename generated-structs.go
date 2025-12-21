@@ -331,6 +331,15 @@ type StorageState struct {
 	Origins []Origin `json:"origins"`
 }
 
+type APIRequestContextStorageStateOptions struct {
+	// Set to `true` to include IndexedDB in the storage state snapshot.
+	IndexedDB *bool `json:"indexedDB"`
+	// The file path to save the storage state to. If “[object Object]” is a relative path, then it is resolved relative
+	// to current working directory. If no path is provided, storage state is still returned, but won't be saved to the
+	// disk.
+	Path *string `json:"path"`
+}
+
 type NameValue struct {
 	// Name of the header.
 	Name string `json:"name"`
@@ -734,6 +743,19 @@ type Geolocation struct {
 	Longitude float64 `json:"longitude"`
 	// Non-negative accuracy value. Defaults to `0`.
 	Accuracy *float64 `json:"accuracy"`
+}
+
+type BrowserContextStorageStateOptions struct {
+	// Set to `true` to include [IndexedDB] in the storage
+	// state snapshot. If your application uses IndexedDB to store authentication tokens, like Firebase Authentication,
+	// enable this.
+	//
+	// [IndexedDB]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+	IndexedDB *bool `json:"indexedDB"`
+	// The file path to save the storage state to. If “[object Object]” is a relative path, then it is resolved relative
+	// to current working directory. If no path is provided, storage state is still returned, but won't be saved to the
+	// disk.
+	Path *string `json:"path"`
 }
 
 type BrowserContextUnrouteAllOptions struct {
@@ -4321,8 +4343,9 @@ type Proxy struct {
 }
 
 type Origin struct {
-	Origin       string      `json:"origin"`
-	LocalStorage []NameValue `json:"localStorage"`
+	Origin       string              `json:"origin"`
+	LocalStorage []NameValue         `json:"localStorage"`
+	IndexedDB    []IndexedDBDatabase `json:"indexedDB"`
 }
 
 type RecordVideo struct {

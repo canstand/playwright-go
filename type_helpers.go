@@ -70,3 +70,33 @@ func (c Cookie) ToOptionalCookie() OptionalCookie {
 		SameSite: c.SameSite,
 	}
 }
+
+type IndexedDBDatabase struct {
+	Name    string                 `json:"name"`
+	Version int                    `json:"version"`
+	Stores  []IndexedDBObjectStore `json:"stores"`
+}
+
+type IndexedDBObjectStore struct {
+	Name          string            `json:"name"`
+	AutoIncrement bool              `json:"autoIncrement"`
+	KeyPath       *string           `json:"keyPath"`
+	KeyPathArray  []string          `json:"keyPathArray"`
+	Records       []IndexedDBRecord `json:"records"`
+	Indexes       []IndexedDBIndex  `json:"indexes"`
+}
+
+type IndexedDBRecord struct {
+	Key          string `json:"key"`
+	KeyEncoded   string `json:"keyEncoded"`
+	Value        string `json:"value"`
+	ValueEncoded string `json:"valueEncoded"`
+}
+
+type IndexedDBIndex struct {
+	Name         string   `json:"name"`
+	KeyPath      *string  `json:"keyPath"`
+	KeyPathArray []string `json:"keyPathArray"`
+	MultiEntry   bool     `json:"multiEntry"`
+	Unique       bool     `json:"unique"`
+}

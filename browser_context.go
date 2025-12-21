@@ -516,13 +516,22 @@ func (b *browserContextImpl) recordIntoHar(har string, options ...browserContext
 	return nil
 }
 
-func (b *browserContextImpl) StorageState(paths ...string) (*StorageState, error) {
-	result, err := b.channel.SendReturnAsDict("storageState")
+func (b *browserContextImpl) StorageState(options ...BrowserContextStorageStateOptions) (*StorageState, error) {
+	var option BrowserContextStorageStateOptions
+	var saveTo *string
+	if len(options) == 1 {
+		option = options[0]
+		if option.Path != nil {
+			saveTo = option.Path
+			option.Path = nil
+		}
+	}
+	result, err := b.channel.SendReturnAsDict("storageState", option)
 	if err != nil {
 		return nil, err
 	}
-	if len(paths) == 1 {
-		file, err := os.Create(paths[0])
+	if saveTo != nil {
+		file, err := os.Create(*saveTo)
 		if err != nil {
 			return nil, err
 		}

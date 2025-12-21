@@ -24,7 +24,7 @@ func newFrame(parent *channelOwner, objectType string, guid string, initializer 
 	var loadStates mapset.Set[string]
 
 	if ls, ok := initializer["loadStates"].([]string); ok {
-		loadStates = mapset.NewSet[string](ls...)
+		loadStates = mapset.NewSet(ls...)
 	} else {
 		loadStates = mapset.NewSet[string]()
 	}
