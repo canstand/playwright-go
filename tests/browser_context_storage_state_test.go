@@ -1,9 +1,10 @@
 package playwright_test
 
 import (
-	"encoding/json"
 	"os"
 	"testing"
+
+	"github.com/go-json-experiment/json"
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/stretchr/testify/require"

@@ -1,8 +1,9 @@
 package playwright
 
 import (
-	"encoding/json"
 	"fmt"
+
+	"github.com/go-json-experiment/json"
 )
 
 type channel struct {

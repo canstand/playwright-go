@@ -2,7 +2,8 @@ package playwright
 
 import (
 	"encoding/base64"
-	"encoding/json"
+
+	"github.com/go-json-experiment/json"
 )
 
 type responseImpl struct {

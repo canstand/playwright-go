@@ -1,10 +1,12 @@
 package playwright
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/go-json-experiment/json"
+	"github.com/go-json-experiment/json/jsontext"
 )
 
 func convertRegexp(reg *regexp.Regexp) (pattern, flags string) {
@@ -51,9 +53,8 @@ func escapeRegexForSelector(re *regexp.Regexp) string {
 
 func escapeText(s string) string {
 	builder := &strings.Builder{}
-	encoder := json.NewEncoder(builder)
-	encoder.SetEscapeHTML(false)
-	_ = encoder.Encode(s)
+	encoder := jsontext.NewEncoder(builder)
+	_ = json.MarshalEncode(encoder, s, jsontext.EscapeForHTML(false))
 	return strings.TrimSpace(builder.String())
 }
 

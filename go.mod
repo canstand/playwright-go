@@ -1,11 +1,11 @@
 module github.com/playwright-community/playwright-go
 
-go 1.22
+go 1.25
 
 require (
 	github.com/coder/websocket v1.8.12
-	github.com/deckarep/golang-set/v2 v2.7.0
-	github.com/go-jose/go-jose/v3 v3.0.4
+	github.com/deckarep/golang-set/v2 v2.8.0
+	github.com/go-json-experiment/json v0.0.0-20251027170946-4849db3c2f7e
 	github.com/go-stack/stack v1.8.1
 	github.com/h2non/filetype v1.1.3
 	github.com/mitchellh/go-ps v1.0.0

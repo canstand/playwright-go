@@ -1,7 +1,6 @@
 package playwright
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -9,6 +8,8 @@ import (
 	"slices"
 	"strings"
 	"sync"
+
+	"github.com/go-json-experiment/json"
 
 	"github.com/playwright-community/playwright-go/internal/safe"
 )
@@ -525,7 +526,7 @@ func (b *browserContextImpl) StorageState(paths ...string) (*StorageState, error
 		if err != nil {
 			return nil, err
 		}
-		if err := json.NewEncoder(file).Encode(result); err != nil {
+		if err := json.MarshalWrite(file, result); err != nil {
 			return nil, err
 		}
 		if err := file.Close(); err != nil {

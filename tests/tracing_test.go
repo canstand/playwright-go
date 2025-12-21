@@ -3,11 +3,12 @@ package playwright_test
 import (
 	"archive/zip"
 	"bytes"
-	"encoding/json"
 	"io"
 	"path/filepath"
 	"slices"
 	"testing"
+
+	"github.com/go-json-experiment/json"
 
 	"github.com/playwright-community/playwright-go"
 	"github.com/stretchr/testify/require"
@@ -199,9 +200,7 @@ func parseTrace(t *testing.T, tracePath string) (files map[string][]byte, events
 					actionMap[event["callId"].(string)] = event
 					events = append(events, event)
 				case "input":
-					break
 				case "after":
-					break
 				default:
 					events = append(events, event)
 				}
