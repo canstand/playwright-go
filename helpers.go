@@ -168,17 +168,22 @@ func remapValue(inMapValue reflect.Value, outStructValue reflect.Value) {
 			fi := structTyp.Field(i)
 			key := strings.Split(fi.Tag.Get("json"), ",")[0]
 			structField := outStructValue.Field(i)
-			structFieldDeref := outStructValue.Field(i)
+			value := inMapValue.MapIndex(reflect.ValueOf(key))
+			if !value.IsValid() {
+				continue
+			}
+			if value.Kind() == reflect.Interface {
+				if value.IsNil() {
+					continue
+				}
+				value = value.Elem()
+			}
+			structFieldDeref := structField
 			if structField.Type().Kind() == reflect.Pointer {
 				structField.Set(reflect.New(structField.Type().Elem()))
 				structFieldDeref = structField.Elem()
 			}
-			for _, e := range inMapValue.MapKeys() {
-				if key == e.String() {
-					value := inMapValue.MapIndex(e)
-					remapValue(value.Elem(), structFieldDeref)
-				}
-			}
+			remapValue(value, structFieldDeref)
 		}
 	default:
 		panic(inMapValue.Interface())
