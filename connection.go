@@ -357,17 +357,7 @@ func fromChannel(v interface{}) interface{} {
 	if ch, ok := v.(*channel); ok {
 		return ch.object
 	}
-	panic(fmt.Sprintf("fromChannel: expected *channel, got %T", v))
-}
-
-// fromChannelWithConnection resolves a value to a channel object
-// With the protocol fix, GUIDs are always eagerly resolved, so this behaves identically to fromChannel
-// The conn parameter is kept for API compatibility but is no longer used
-func fromChannelWithConnection(v interface{}, conn *connection) interface{} {
-	if ch, ok := v.(*channel); ok {
-		return ch.object
-	}
-	panic(fmt.Sprintf("fromChannelWithConnection: expected *channel, got %T: %+v", v, v))
+	panic(fmt.Sprintf("fromChannel: expected *channel, got %T: %+v", v, v))
 }
 
 func fromNullableChannel(v interface{}) interface{} {

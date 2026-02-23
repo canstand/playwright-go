@@ -330,8 +330,8 @@ type APIRequestContextPutOptions struct {
 }
 
 type StorageState struct {
-	Cookies []StorageStateCookie `json:"cookies"`
-	Origins []Origin             `json:"origins"`
+	Cookies []Cookie `json:"cookies"`
+	Origins []Origin `json:"origins"`
 }
 
 type NameValue struct {
@@ -4370,18 +4370,6 @@ type Proxy struct {
 	Password *string `json:"password"`
 }
 
-type StorageStateCookie struct {
-	Name   string `json:"name"`
-	Value  string `json:"value"`
-	Domain string `json:"domain"`
-	Path   string `json:"path"`
-	// Unix time in seconds.
-	Expires  float64            `json:"expires"`
-	HttpOnly bool               `json:"httpOnly"`
-	Secure   bool               `json:"secure"`
-	SameSite *SameSiteAttribute `json:"sameSite"`
-}
-
 type Origin struct {
 	Origin       string      `json:"origin"`
 	LocalStorage []NameValue `json:"localStorage"`
@@ -4398,7 +4386,7 @@ type RecordVideo struct {
 
 type OptionalStorageState struct {
 	// Cookies to set for context
-	Cookies []OptionalStorageStateOptionalCookie `json:"cookies"`
+	Cookies []OptionalCookie `json:"cookies"`
 	// localStorage to set for context
 	Origins []Origin `json:"origins"`
 }
@@ -4423,24 +4411,4 @@ type TracingGroupOptionsLocation struct {
 	File   string `json:"file"`
 	Line   *int   `json:"line"`
 	Column *int   `json:"column"`
-}
-
-type OptionalStorageStateOptionalCookie struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-	// Either url or domain / path are required. Optional.
-	URL *string `json:"url"`
-	// For the cookie to apply to all subdomains as well, prefix domain with a dot, like this: ".example.com". Either url
-	// or domain / path are required. Optional.
-	Domain *string `json:"domain"`
-	// Either url or domain / path are required Optional.
-	Path *string `json:"path"`
-	// Unix time in seconds. Optional.
-	Expires *float64 `json:"expires"`
-	// Optional.
-	HttpOnly *bool `json:"httpOnly"`
-	// Optional.
-	Secure *bool `json:"secure"`
-	// Optional.
-	SameSite *SameSiteAttribute `json:"sameSite"`
 }

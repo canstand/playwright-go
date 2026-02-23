@@ -92,7 +92,7 @@ func (b *browserContextImpl) NewCDPSession(page interface{}) (CDPSession, error)
 		return nil, err
 	}
 
-	cdpSession := fromChannelWithConnection(channel, b.connection).(*cdpSessionImpl)
+	cdpSession := fromChannel(channel).(*cdpSessionImpl)
 
 	return cdpSession, nil
 }
@@ -105,7 +105,7 @@ func (b *browserContextImpl) NewPage() (Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fromChannelWithConnection(channel, b.connection).(*pageImpl), nil
+	return fromChannel(channel).(*pageImpl), nil
 }
 
 func (b *browserContextImpl) Cookies(urls ...string) ([]Cookie, error) {
@@ -439,7 +439,7 @@ func (b *browserContextImpl) Close(options ...BrowserContextCloseOptions) error 
 			if err != nil {
 				return nil, err
 			}
-			artifact := fromChannelWithConnection(response, b.connection).(*artifactImpl)
+			artifact := fromChannel(response).(*artifactImpl)
 			// Server side will compress artifact if content is attach or if file is .zip.
 			needCompressed := strings.HasSuffix(strings.ToLower(harMetaData.Path), ".zip")
 			if !needCompressed && harMetaData.Content == HarContentPolicyAttach {
@@ -645,7 +645,7 @@ func (b *browserContextImpl) pause() <-chan error {
 
 func (b *browserContextImpl) onBackgroundPage(ev map[string]interface{}) {
 	b.Lock()
-	p := fromChannelWithConnection(ev["page"], b.connection).(*pageImpl)
+	p := fromChannel(ev["page"]).(*pageImpl)
 	p.browserContext = b
 	b.backgroundPages = append(b.backgroundPages, p)
 	b.Unlock()
@@ -809,11 +809,11 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 	}
 	bt.createChannelOwner(bt, parent, objectType, guid, initializer)
 	if parent.objectType == "Browser" {
-		bt.browser = fromChannelWithConnection(parent.channel, bt.connection).(*browserImpl)
+		bt.browser = fromChannel(parent.channel).(*browserImpl)
 		bt.browser.contexts = append(bt.browser.contexts, bt)
 	}
-	bt.tracing = fromChannelWithConnection(initializer["tracing"], bt.connection).(*tracingImpl)
-	bt.request = fromChannelWithConnection(initializer["requestContext"], bt.connection).(*apiRequestContextImpl)
+	bt.tracing = fromChannel(initializer["tracing"]).(*tracingImpl)
+	bt.request = fromChannel(initializer["requestContext"]).(*apiRequestContextImpl)
 	bt.clock = newClock(bt)
 
 	// Register this context with the selectors manager for custom selector engines
@@ -824,7 +824,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 	}
 
 	bt.channel.On("bindingCall", func(params map[string]interface{}) {
-		bt.onBinding(fromChannelWithConnection(params["binding"], bt.connection).(*bindingCallImpl))
+		bt.onBinding(fromChannel(params["binding"]).(*bindingCallImpl))
 	})
 
 	bt.channel.On("close", func() {
@@ -837,21 +837,21 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 		bt.onClose()
 	})
 	bt.channel.On("page", func(payload map[string]interface{}) {
-		bt.onPage(fromChannelWithConnection(payload["page"], bt.connection).(*pageImpl))
+		bt.onPage(fromChannel(payload["page"]).(*pageImpl))
 	})
 	bt.channel.On("route", func(params map[string]interface{}) {
 		bt.channel.CreateTask(func() {
-			bt.onRoute(fromChannelWithConnection(params["route"], bt.connection).(*routeImpl))
+			bt.onRoute(fromChannel(params["route"]).(*routeImpl))
 		})
 	})
 	bt.channel.On("webSocketRoute", func(params map[string]interface{}) {
 		bt.channel.CreateTask(func() {
-			bt.onWebSocketRoute(fromChannelWithConnection(params["webSocketRoute"], bt.connection).(*webSocketRouteImpl))
+			bt.onWebSocketRoute(fromChannel(params["webSocketRoute"]).(*webSocketRouteImpl))
 		})
 	})
 	bt.channel.On("backgroundPage", bt.onBackgroundPage)
 	bt.channel.On("serviceWorker", func(params map[string]interface{}) {
-		bt.onServiceWorker(fromChannelWithConnection(params["worker"], bt.connection).(*workerImpl))
+		bt.onServiceWorker(fromChannel(params["worker"]).(*workerImpl))
 	})
 	bt.channel.On("console", func(ev map[string]interface{}) {
 		message := newConsoleMessage(ev)
@@ -861,7 +861,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 		}
 	})
 	bt.channel.On("dialog", func(params map[string]interface{}) {
-		dialog := fromChannelWithConnection(params["dialog"], bt.connection).(*dialogImpl)
+		dialog := fromChannel(params["dialog"]).(*dialogImpl)
 		go func() {
 			hasListeners := bt.Emit("dialog", dialog)
 			page := dialog.page
@@ -898,7 +898,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 		},
 	)
 	bt.channel.On("request", func(ev map[string]interface{}) {
-		request := fromChannelWithConnection(ev["request"], bt.connection).(*requestImpl)
+		request := fromChannel(ev["request"]).(*requestImpl)
 		page := fromNullableChannel(ev["page"])
 		bt.Emit("request", request)
 		if page != nil {
@@ -906,7 +906,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 		}
 	})
 	bt.channel.On("requestFailed", func(ev map[string]interface{}) {
-		request := fromChannelWithConnection(ev["request"], bt.connection).(*requestImpl)
+		request := fromChannel(ev["request"]).(*requestImpl)
 		failureText := ev["failureText"]
 		if failureText != nil {
 			request.failureText = failureText.(string)
@@ -920,7 +920,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 	})
 
 	bt.channel.On("requestFinished", func(ev map[string]interface{}) {
-		request := fromChannelWithConnection(ev["request"], bt.connection).(*requestImpl)
+		request := fromChannel(ev["request"]).(*requestImpl)
 		response := fromNullableChannel(ev["response"])
 		page := fromNullableChannel(ev["page"])
 		request.setResponseEndTiming(ev["responseEndTiming"].(float64))
@@ -933,7 +933,7 @@ func newBrowserContext(parent *channelOwner, objectType string, guid string, ini
 		}
 	})
 	bt.channel.On("response", func(ev map[string]interface{}) {
-		response := fromChannelWithConnection(ev["response"], bt.connection).(*responseImpl)
+		response := fromChannel(ev["response"]).(*responseImpl)
 		page := fromNullableChannel(ev["page"])
 		bt.Emit("response", response)
 		if page != nil {
