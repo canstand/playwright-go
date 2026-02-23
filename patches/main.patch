@@ -1648,7 +1648,7 @@ index 37f6665a9..048201370 100644
  Firefox user preferences. Learn more about the Firefox user preferences at
 diff --git a/utils/doclint/generateGoApi.js b/utils/doclint/generateGoApi.js
 new file mode 100644
-index 000000000..cd5f22cca
+index 000000000..996ad6108
 --- /dev/null
 +++ b/utils/doclint/generateGoApi.js
 @@ -0,0 +1,871 @@
@@ -1723,8 +1723,8 @@ index 000000000..cd5f22cca
 +const classNameMap = new Map(documentation.classesArray.map(x => [x.name, toTitleCase(x.name)]));
 +
 +// map some types that we know of
-+classNameMap.set('EvaluationArgument', 'interface{}');
-+classNameMap.set('any', 'interface{}');
++classNameMap.set('EvaluationArgument', 'any');
++// classNameMap.set('any', 'interface{}');
 +classNameMap.set('Buffer', '[]byte'); // TODO(mxschmitt): use bytes.Buffer
 +classNameMap.set('RegExp', 'Regex');
 +
@@ -1975,7 +1975,7 @@ index 000000000..cd5f22cca
 +    && !t.templates
 +    && !t.union
 +    && t.expression === '[Object]')
-+    return 'interface{}';
++    return 'any';
 +
 +  // we'd get this call for enums, primarily
 +  let enumName = generateEnumNameIfApplicable(t);
@@ -2156,8 +2156,8 @@ index 000000000..cd5f22cca
 +    let argType = translateType(arg.type, parent, (t) => generateNameDefault(member, argName, t, parent), !arg.required);
 +
 +    if (!argType) {
-+      argType = 'interface{}'
-+    } else if (argName === 'handler' && argType === 'interface{}') {
++      argType = 'any'
++    } else if (argName === 'handler' && argType === 'any') {
 +      argType = 'func()'
 +    }
 +
@@ -2171,7 +2171,7 @@ index 000000000..cd5f22cca
 +  member.argsArray.forEach(processArg);
 +
 +  if (name === 'SelectOption')
-+    args.push(args.pop().replace(/ interface\{\}/, ' SelectOptionValues'));
++    args.push(args.pop().replace(/ any/, ' SelectOptionValues'));
 +  if (name.match(/Expect[A-Z]\w+/))
 +    args.push(`cb func() error`);
 +
@@ -2213,8 +2213,8 @@ index 000000000..cd5f22cca
 +  output(transformComment(member, paramsComments));
 +  if (parent.name === 'Touchscreen' && name === 'Tap')
 +    output(`${name}(x int, y int) error`);
-+  else if (['JSON', 'PostDataJSON'].includes(name) && args.length === 0 && resultType === 'interface{}')
-+    output(`${name}(v interface{}) error`);
++  else if (['JSON', 'PostDataJSON'].includes(name) && args.length === 0 && resultType === 'any')
++    output(`${name}(v any) error`);
 +  else
 +    output(`${name}(${args.join(', ')}) ${returns.length <= 1 ? returns.join() : '(' + returns.join(', ') + ')'}`);
 +}
@@ -2340,9 +2340,9 @@ index 000000000..cd5f22cca
 +    return `${optional && !isReturnType ? '*' : ''}${name}`;
 +  }
 +  if (type.name === "Serializable")
-+    return "interface{}";
++    return "any";
 +  if (type.name === "Logger")
-+    return "interface{}";
++    return "any";
 +  if (type.name === 'URL' || type.name === 'path')
 +    return `${optional && !isReturnType ? '*' : ''}string`;
 +  // a few special cases we can fix automatically
@@ -2353,9 +2353,9 @@ index 000000000..cd5f22cca
 +  else if (type.expression === '[boolean]|"mixed"')
 +    return 'MixedState';
 +  else if (type.expression === '[string]|[Request]')
-+    return 'interface{}';
++    return 'any';
 +  else if (type.expression === '[path]|[Array]<[path]>|[Object]|[Array]<[Object]>')
-+    return 'interface{}';
++    return 'any';
 +  else if (type.expression === '[function]([null]|[int], [null]|[string])')
 +    return 'func(*int, *string)';
 +  else if (optional && type.expression === '[string]|[Array]<[string]>')
@@ -2369,7 +2369,7 @@ index 000000000..cd5f22cca
 +        if (type.union.filter(x => x.name.startsWith('"')).length == type.union.length - 1)
 +          isNullableEnum = true; // seems never appear
 +        else
-+          return `interface{}`
++          return `any`
 +      } else {
 +        return translateType(type.union[1], parent, generateNameCallback, true, isReturnType);
 +      }
@@ -2402,7 +2402,7 @@ index 000000000..cd5f22cca
 +    }
 +
 +    if (type.expression === '[string]|[Buffer]')
-+      return `interface{}`; // TODO: make sure we implement extension methods for this!
++      return `any`; // TODO: make sure we implement extension methods for this!
 +    else if (type.expression === '[string]|[float]'
 +      || type.expression === '[string]|[float]|[boolean]') {
 +      console.warn(`${type.name} should be a 'string', but was a ${type.expression}`);
@@ -2418,13 +2418,13 @@ index 000000000..cd5f22cca
 +      // HACK: for script path or content
 +      return translateType(type.union[2], parent, generateNameCallback, false, isReturnType);
 +    else if (type.expression === '[float]|"raf"')
-+      return `interface{}`; // hardcoded because there's no other way to denote this
++      return `any`; // hardcoded because there's no other way to denote this
 +    else if (type.expression === '[string]|[RegExp]')
-+      return "interface{}"
++      return "any"
 +    if (type.expression === "[string]|[RegExp]|[function]([URL]):[boolean]")
-+      return "interface{}"
++      return "any"
 +    // other unions
-+    return "interface{}";
++    return "any";
 +  }
 +
 +  const removePointer = i => i ? i.replace(/^\*(.*)/g, "$1") : i
@@ -2445,7 +2445,7 @@ index 000000000..cd5f22cca
 +    }
 +
 +    if (!type.properties && !type.union) {
-+      return 'interface{}';
++      return 'any';
 +    }
 +
 +    // this is an additional type that we need to generate
@@ -2474,7 +2474,7 @@ index 000000000..cd5f22cca
 +
 +  if (type.name === 'function') {
 +    if (type.expression === '[function]' || !type.args)
-+      return 'interface{}'; // super simple mapping
++      return 'any'; // super simple mapping
 +
 +    let argsList = '';
 +    if (type.args) {
